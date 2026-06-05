@@ -1,4 +1,5 @@
 import json
+import argparse
 
 def parse_log_line(line):
     try:
@@ -14,7 +15,7 @@ def parse_log_line(line):
         message = " ".join(parts[3:])
         return timestamp, level, message
 
-def read_log_file(file_path):
+def read_log_file(file_path, level_filter=None):
 
     errors = 0
     warnings = 0
@@ -29,6 +30,8 @@ def read_log_file(file_path):
                 line = line.strip()
 
                 timestamp, level, message = parse_log_line(line)
+                if level_filter and level != level_filter:
+                    continue
 
                 print(f"\nLine {line_number}")
                 print(f"Timestamp: {timestamp}")
@@ -67,5 +70,12 @@ def read_log_file(file_path):
 
     except Exception as e:
         print(f"An error occurred: {e}")
-if __name__ == '__main__':
-    read_log_file("sample.log")
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--level")
+
+    args = parser.parse_args()
+
+    read_log_file("sample.log", args.level)
