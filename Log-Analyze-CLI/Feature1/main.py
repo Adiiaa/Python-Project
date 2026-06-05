@@ -19,6 +19,7 @@ def read_log_file(file_path):
     errors = 0
     warnings = 0
     info = 0
+    error_counts = {}
 
     try:
         with open(file_path, "r") as file:
@@ -33,9 +34,13 @@ def read_log_file(file_path):
                 print(f"Timestamp: {timestamp}")
                 print(f"Level: {level}")
                 print(f"Message: {message}")
-
                 if level == "ERROR":
                     errors += 1
+
+                    if message in error_counts:
+                        error_counts[message] += 1
+                    else:
+                        error_counts[message] = 1
 
                 elif level == "WARNING":
                     warnings += 1
@@ -43,10 +48,19 @@ def read_log_file(file_path):
                 elif level == "INFO":
                     info += 1
 
+        if error_counts:
+            most_common_error = max(
+                error_counts,
+                key=error_counts.get
+            )
+        else:
+            most_common_error = "No errors found"
+
         print("\n===== SUMMARY =====")
         print(f"Errors:   {errors}")
         print(f"Warnings: {warnings}")
         print(f"Info:     {info}")
+        print(f"Most frequent error: {most_common_error}")
 
     except FileNotFoundError:
         print(f"File '{file_path}' not found.")
