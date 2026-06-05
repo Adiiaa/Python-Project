@@ -15,16 +15,43 @@ def parse_log_line(line):
         return timestamp, level, message
 
 def read_log_file(file_path):
+
+    errors = 0
+    warnings = 0
+    info = 0
+
     try:
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
+
             for line_number, line in enumerate(file, start=1):
+
                 line = line.strip()
+
                 timestamp, level, message = parse_log_line(line)
+
                 print(f"\nLine {line_number}")
                 print(f"Timestamp: {timestamp}")
                 print(f"Level: {level}")
                 print(f"Message: {message}")
+
+                if level == "ERROR":
+                    errors += 1
+
+                elif level == "WARNING":
+                    warnings += 1
+
+                elif level == "INFO":
+                    info += 1
+
+        print("\n===== SUMMARY =====")
+        print(f"Errors:   {errors}")
+        print(f"Warnings: {warnings}")
+        print(f"Info:     {info}")
+
     except FileNotFoundError:
-        print(f"File '{file_path}' not found")
+        print(f"File '{file_path}' not found.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 if __name__ == '__main__':
     read_log_file("sample.log")
