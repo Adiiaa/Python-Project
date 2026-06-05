@@ -1,5 +1,6 @@
 import json
 import argparse
+import csv
 
 def parse_log_line(line):
     try:
@@ -70,6 +71,33 @@ def read_log_file(file_path, level_filter=None):
 
     except Exception as e:
         print(f"An error occurred: {e}")
+
+def export_summary_to_csv(
+        filename,
+        total_logs,
+        errors,
+        warnings,
+        info,
+        most_common_error
+):
+    try:
+        with open(filename, "w", newline="") as csv_file:
+
+            writer = csv.writer(csv_file)
+
+            writer.writerow(["metric", "value"])
+
+            writer.writerow(["total_logs", total_logs])
+            writer.writerow(["errors", errors])
+            writer.writerow(["warnings", warnings])
+            writer.writerow(["info", info])
+            writer.writerow(["most_common_error", most_common_error])
+
+        print(f"\nSummary exported to {filename}")
+
+    except Exception as e:
+        print(f"CSV export failed: {e}")
+        
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
