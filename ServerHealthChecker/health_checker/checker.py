@@ -1,5 +1,6 @@
 import requests
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 
 def check_server(url):
@@ -46,4 +47,8 @@ def check_server(url):
 
 
 def check_all_servers(servers):
-    return [check_server(server) for server in servers]
+
+    with ThreadPoolExecutor() as executor:
+        results = list(executor.map(check_server, servers))
+
+    return results
