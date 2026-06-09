@@ -1,5 +1,7 @@
-from health_checker.config import load_servers
+from health_checker.checker import check_server
 
-servers = load_servers()
+result = check_server(
+    "https://httpbin.org/status/200"
+)
 
-print(servers)
+print(result)
