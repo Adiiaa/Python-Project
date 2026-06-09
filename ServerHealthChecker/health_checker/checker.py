@@ -3,47 +3,63 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 
+MAX_RETRIES = 2
+
+
 def check_server(url):
 
     start = time.perf_counter()
 
-    try:
-        response = requests.get(url, timeout=5)
+    response = None
+    last_error = None
 
-        elapsed = (time.perf_counter() - start) * 1000
-
-        slow = elapsed > 500
-
-        healthy = 200 <= response.status_code < 300
-
-        json_ok = False
+    for attempt in range(MAX_RETRIES):
 
         try:
-            data = response.json()
-            if data.get("status") == "ok":
-                json_ok = True
-        except ValueError:
-            pass
+            response = requests.get(url, timeout=5)
 
-        return {
-            "url": url,
-            "status_code": response.status_code,
-            "response_time": round(elapsed, 2),
-            "healthy": healthy,
-            "json_ok": json_ok,
-            "slow": slow
-        }
+            # retry only for server/network issues
+            if response.status_code < 500:
+                break
 
-    except requests.RequestException:
+        except requests.RequestException as e:
+            last_error = e
 
-        return {
-            "url": url,
-            "status_code": None,
-            "response_time": None,
-            "healthy": False,
-            "json_ok": False,
-            "slow": False
-        }
+            if attempt == MAX_RETRIES - 1:
+
+                return {
+                    "url": url,
+                    "status_code": None,
+                    "response_time": None,
+                    "healthy": False,
+                    "json_ok": False,
+                    "slow": False,
+                    "error": str(last_error)
+                }
+
+    elapsed = (time.perf_counter() - start) * 1000
+
+    slow = elapsed > 500
+
+    healthy = 200 <= response.status_code < 300
+
+    json_ok = False
+
+    try:
+        data = response.json()
+        if data.get("status") == "ok":
+            json_ok = True
+    except ValueError:
+        pass
+
+    return {
+        "url": url,
+        "status_code": response.status_code,
+        "response_time": round(elapsed, 2),
+        "healthy": healthy,
+        "json_ok": json_ok,
+        "slow": slow
+    }
 
 
 def check_all_servers(servers):
