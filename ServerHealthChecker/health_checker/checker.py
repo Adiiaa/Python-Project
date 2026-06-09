@@ -11,6 +11,7 @@ def check_server(url):
         elapsed = (
             time.perf_counter() - start
         ) * 1000
+        slow = elapsed > 500
 
         healthy = (
             200 <= response.status_code < 300
@@ -32,7 +33,8 @@ def check_server(url):
             "status_code": response.status_code,
             "response_time": round(elapsed, 2),
             "healthy": healthy,
-            "json_ok": json_ok
+            "json_ok": json_ok,
+            "slow": slow
         }
 
     except requests.RequestException as e:
