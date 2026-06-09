@@ -16,18 +16,32 @@ def check_server(url):
             200 <= response.status_code < 300
         )
 
+        json_ok = False
+
+        try:
+            data = response.json()
+
+            if data.get("status") == "ok":
+                json_ok = True
+
+        except ValueError:
+            pass
+
         return {
             "url": url,
             "status_code": response.status_code,
             "response_time": round(elapsed, 2),
-            "healthy": healthy
+            "healthy": healthy,
+            "json_ok": json_ok
         }
 
-    except requests.RequestException:
+    except requests.RequestException as e:
+        print("ERROR:", e)
 
         return {
             "url": url,
             "status_code": None,
             "response_time": None,
-            "healthy": False
+            "healthy": False,
+            "json_ok": False
         }
