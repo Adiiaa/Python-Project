@@ -1,7 +1,28 @@
+from health_checker.config import load_servers
 from health_checker.checker import check_server
+from health_checker.formatter import format_result
 
-result = check_server(
-    "https://httpbin.org/status/200"
-)
 
-print(result)
+servers = load_servers()
+
+failed_services = []
+
+for server in servers:
+
+    result = check_server(server)
+
+    print(format_result(result))
+
+    if not result["healthy"]:
+        failed_services.append(server)
+
+print()
+
+if failed_services:
+    print("Failed services:")
+
+    for service in failed_services:
+        print(service)
+
+else:
+    print("No failed services.")
