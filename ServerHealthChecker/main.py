@@ -3,26 +3,31 @@ from health_checker.checker import check_server
 from health_checker.formatter import format_result
 
 
-servers = load_servers()
+def main():
 
-failed_services = []
+    servers = load_servers()
 
-for server in servers:
+    failed_services = []
 
-    result = check_server(server)
+    for server in servers:
 
-    print(format_result(result))
+        result = check_server(server)
 
-    if not result["healthy"]:
-        failed_services.append(server)
+        print(format_result(result))
 
-print()
+        if not result["healthy"]:
+            failed_services.append(server)
 
-if failed_services:
-    print("Failed services:")
+    print()
 
-    for service in failed_services:
-        print(service)
+    if failed_services:
+        print("Failed services:")
 
-else:
-    print("No failed services.")
+        for service in failed_services:
+            print(service)
+    else:
+        print("No failed services.")
+
+
+if __name__ == "__main__":
+    main()
